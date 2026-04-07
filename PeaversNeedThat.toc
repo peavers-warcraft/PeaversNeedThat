@@ -1,0 +1,23 @@
+## Interface: 120000, 120001
+
+## Title: |cff3abdf7Peavers|rNeedThat
+## Notes: Monitors loot drops in M+ dungeons and provides quick whisper dialogs to ask for items
+## Author: Peavers
+## Version: 1.0.0
+
+## IconTexture: Interface\AddOns\PeaversCommons\src\Media\Icon.tga
+## Category-enUS: Peavers
+
+## X-Website: https://peavers.io
+
+## Dependencies: PeaversCommons
+## SavedVariables: PeaversNeedThatDB
+
+src\Main.lua
+
+src\Utils\Config.lua
+src\Utils\ConfigUI.lua
+
+src\Core\LootTracker.lua
+src\Core\LootDialog.lua
+src\Core\Core.lua
