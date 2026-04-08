@@ -40,30 +40,47 @@ PeaversCommons.SlashCommands:Register(addonName, "pnt", {
         Utils.Print(PNT, "Debug mode " .. (PNT.Config.DEBUG_ENABLED and "enabled" or "disabled"))
     end,
     test = function()
-        -- Simulate a loot event for testing outside of M+
-        if PNT.Config.DEBUG_ENABLED then
-            local testLink = "|cff0070dd|Hitem:237627::::::::80:::::|h[Test Item]|h|r"
-            Utils.Print(PNT, "Simulating loot event (debug mode)")
+        -- Populate with sample loot data for testing UI and whisper message
+        Utils.Print(PNT, "Loading test data. Whispers will be sent to yourself.")
+        PNT.Config._testMode = true
+
+        wipe(PNT.LootTracker.lootHistory)
+
+        local myName = UnitName("player")
+        local myFullName = myName
+        local _, myRealm = UnitFullName("player")
+        if myRealm and myRealm ~= "" then
+            myFullName = myName .. "-" .. myRealm
+        end
+
+        local testItems = {
+            { name = "Stormbreaker's Warhelm",      quality = 4, slot = "INVTYPE_HEAD",           slotName = "Head",      icon = 133077, player = "Thrall" },
+            { name = "Vestments of the Eternal",     quality = 4, slot = "INVTYPE_CHEST",          slotName = "Chest",     icon = 132680, player = "Jaina" },
+            { name = "Signet of Fading Light",       quality = 4, slot = "INVTYPE_FINGER",         slotName = "Ring",      icon = 133345, player = "Anduin" },
+            { name = "Greatsword of the Fallen",     quality = 4, slot = "INVTYPE_2HWEAPON",       slotName = "Two-Hand",  icon = 135274, player = "Saurfang" },
+            { name = "Drape of Frozen Dreams",       quality = 3, slot = "INVTYPE_CLOAK",          slotName = "Back",      icon = 133762, player = "Sylvanas" },
+        }
+
+        for i, item in ipairs(testItems) do
             local entry = {
-                itemLink = testLink,
-                playerName = "TestPlayer-TestRealm",
-                playerShort = "TestPlayer",
-                itemID = 237627,
-                itemName = "Test Item",
-                itemQuality = 3,
-                itemEquipLoc = "INVTYPE_CHEST",
-                slotName = "Chest",
-                itemTexture = 134400,
-                timestamp = time(),
+                itemLink = "|cff" .. (item.quality == 4 and "a335ee" or "0070dd") .. "|Hitem:" .. (200000 + i) .. "::::::::80:::::|h[" .. item.name .. "]|h|r",
+                playerName = myFullName,
+                playerShort = item.player,
+                itemID = 200000 + i,
+                itemName = item.name,
+                itemQuality = item.quality,
+                itemEquipLoc = item.slot,
+                slotName = item.slotName,
+                itemTexture = item.icon,
+                timestamp = time() - (i * 30),
                 asked = false,
             }
-            table.insert(PNT.LootTracker.lootHistory, 1, entry)
-            PNT.LootDialog:Refresh()
-            if PNT.Config.autoShow and PNT.Core then
-                PNT.Core:Show()
-            end
-        else
-            Utils.Print(PNT, "Test command requires debug mode. Use /pnt debug first.")
+            table.insert(PNT.LootTracker.lootHistory, entry)
+        end
+
+        PNT.LootDialog:Refresh()
+        if PNT.Core then
+            PNT.Core:Show()
         end
     end,
     help = function()
@@ -71,8 +88,8 @@ PeaversCommons.SlashCommands:Register(addonName, "pnt", {
         print("  /pnt - Toggle loot window")
         print("  /pnt clear - Clear current loot list")
         print("  /pnt config - Open settings")
+        print("  /pnt test - Load sample data (whispers sent to yourself)")
         print("  /pnt debug - Toggle debug mode")
-        print("  /pnt test - Simulate loot event (requires debug mode)")
         print("  /pnt help - Show this help")
     end
 })
@@ -114,6 +131,7 @@ PeaversCommons.Events:Init(addonName, function()
                 "/pnt - Toggle loot window",
                 "/pnt clear - Clear current loot list",
                 "/pnt config - Open settings",
+                "/pnt test - Load sample data for testing",
                 "/pnt debug - Toggle debug mode",
                 "/pnt help - Show available commands"
             }

@@ -153,10 +153,25 @@ function ConfigUI:InitializeOptions()
     editBox:SetMaxLetters(255)
     editBox:SetText(PNT.Config.whisperMessage or defaultWhisper)
 
+    local function SaveWhisperMessage()
+        local text = editBox:GetText()
+        if text and text ~= "" then
+            PNT.Config.whisperMessage = text
+            PNT.Config:Save()
+        end
+    end
+
+    editBox:SetScript("OnEditFocusGained", function(self)
+        self:HighlightText()
+    end)
+
     editBox:SetScript("OnEnterPressed", function(self)
-        PNT.Config.whisperMessage = self:GetText()
-        PNT.Config:Save()
+        SaveWhisperMessage()
         self:ClearFocus()
+    end)
+
+    editBox:SetScript("OnEditFocusLost", function(self)
+        SaveWhisperMessage()
     end)
 
     editBox:SetScript("OnEscapePressed", function(self)
@@ -238,7 +253,7 @@ function ConfigUI:InitializeOptions()
 
     local widthContainer, widthSlider = ConfigUIUtils.CreateSlider(
         content, "PNTFrameWidthSlider",
-        "Frame Width", 250, 500, 10,
+        "Frame Width", 450, 750, 10,
         PNT.Config.frameWidth, sliderWidth,
         function(value)
             PNT.Config.frameWidth = value

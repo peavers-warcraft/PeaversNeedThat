@@ -19,7 +19,7 @@ PNT.Colors = {
 
 local defaults = {
     enabled = true,
-    frameWidth = 350,
+    frameWidth = 580,
     framePoint = "CENTER",
     frameX = 0,
     frameY = 0,

@@ -1,7 +1,7 @@
 local addonName, PNT = ...
 
 --------------------------------------------------------------------------------
--- LootDialog - Styled scrollable list of loot items with whisper buttons
+-- LootDialog - Table-style loot list with columns for Player, Item, Slot
 --------------------------------------------------------------------------------
 
 local PeaversCommons = _G.PeaversCommons
@@ -13,58 +13,110 @@ PNT.LootDialog = LootDialog
 LootDialog.rows = {}
 
 -- Layout constants
-local ROW_HEIGHT = 48
-local ROW_SPACING = 6
-local ICON_SIZE = 28
+local ROW_HEIGHT = 30
+local ROW_SPACING = 2
+local ICON_SIZE = 22
 local BUTTON_WIDTH = 70
-local BUTTON_HEIGHT = 24
+local BUTTON_HEIGHT = 22
 local PADDING = 12
 local SCROLL_WIDTH = 6
 local SCROLL_STEP = 30
+local HEADER_HEIGHT = 24
+
+-- Column positions (from left edge of row)
+local COL_PLAYER_LEFT = 10
+local COL_PLAYER_WIDTH = 100
+local COL_ICON_LEFT = COL_PLAYER_LEFT + COL_PLAYER_WIDTH + 6
+local COL_ITEM_LEFT = COL_ICON_LEFT + ICON_SIZE + 6
+local COL_SLOT_WIDTH = 75
+local COL_BUTTON_INSET = 8 -- from right edge
 
 --------------------------------------------------------------------------------
--- Styled button helper (matches PeaversCVars style)
+-- Element colors (matching DandersFrames style)
 --------------------------------------------------------------------------------
 
-local function CreateStyledButton(parent, text, isPrimary)
-    local C = PNT.Colors
+local C_ELEMENT = {0.18, 0.18, 0.18, 1}
+local C_HOVER   = {0.22, 0.22, 0.22, 1}
+local C_BORDER  = {0.25, 0.25, 0.25, 0.5}
+local C_DISABLED = {0.12, 0.12, 0.12, 1}
 
-    local bgColor = isPrimary and C.ACCENT or C.BG_TERTIARY
-    local bgHover = isPrimary and C.ACCENT_DARK or C.BG_HOVER
+--------------------------------------------------------------------------------
+-- Styled button helper (matching DandersFrames style)
+--------------------------------------------------------------------------------
 
+local function CreateStyledButton(parent, text)
     local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
     btn:SetBackdrop({
-        bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-        edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
         edgeSize = 1,
     })
-    btn:SetBackdropColor(unpack(bgColor))
-    btn:SetBackdropBorderColor(unpack(C.BORDER_LIGHT))
+    btn:SetBackdropColor(unpack(C_ELEMENT))
+    btn:SetBackdropBorderColor(unpack(C_BORDER))
 
-    btn.label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    btn.label = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     btn.label:SetPoint("CENTER")
     btn.label:SetText(text)
-
-    if isPrimary then
-        btn.label:SetTextColor(0, 0, 0, 1)
-    else
-        btn.label:SetTextColor(unpack(C.TEXT_SECONDARY))
-    end
+    btn.label:SetTextColor(0.9, 0.9, 0.9, 1)
 
     btn:EnableMouse(true)
     btn:RegisterForClicks("AnyUp")
 
-    btn.bgColor = bgColor
-    btn.bgHover = bgHover
-
     btn:SetScript("OnEnter", function(self)
-        self:SetBackdropColor(unpack(self.bgHover))
+        if self:IsEnabled() then
+            self:SetBackdropColor(unpack(C_HOVER))
+        end
     end)
     btn:SetScript("OnLeave", function(self)
-        self:SetBackdropColor(unpack(self.bgColor))
+        if self:IsEnabled() then
+            self:SetBackdropColor(unpack(C_ELEMENT))
+        end
+    end)
+    btn:SetScript("OnClick", function(self)
+        if self.clickFunc then self.clickFunc() end
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
     end)
 
     return btn
+end
+
+--------------------------------------------------------------------------------
+-- Create column header
+--------------------------------------------------------------------------------
+
+local function CreateColumnHeader(parentFrame)
+    local C = PNT.Colors
+
+    local header = CreateFrame("Frame", nil, parentFrame, "BackdropTemplate")
+    header:SetHeight(HEADER_HEIGHT)
+    header:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", PADDING, -PADDING)
+    header:SetPoint("RIGHT", parentFrame, "RIGHT", -PADDING, 0)
+    header:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        edgeSize = 1,
+    })
+    header:SetBackdropColor(0.12, 0.12, 0.12, 1)
+    header:SetBackdropBorderColor(unpack(C_BORDER))
+
+    local playerHeader = header:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    playerHeader:SetPoint("LEFT", header, "LEFT", COL_PLAYER_LEFT, 0)
+    playerHeader:SetText("Player")
+    playerHeader:SetTextColor(0.6, 0.6, 0.6, 1)
+
+    local itemHeader = header:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    itemHeader:SetPoint("LEFT", header, "LEFT", COL_ITEM_LEFT, 0)
+    itemHeader:SetText("Item")
+    itemHeader:SetTextColor(0.6, 0.6, 0.6, 1)
+
+    local slotHeader = header:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    slotHeader:SetPoint("RIGHT", header, "RIGHT", -(BUTTON_WIDTH + COL_BUTTON_INSET + 6 + COL_SLOT_WIDTH), 0)
+    slotHeader:SetWidth(COL_SLOT_WIDTH)
+    slotHeader:SetJustifyH("LEFT")
+    slotHeader:SetText("Slot")
+    slotHeader:SetTextColor(0.6, 0.6, 0.6, 1)
+
+    return header
 end
 
 --------------------------------------------------------------------------------
@@ -75,9 +127,12 @@ function LootDialog:Initialize(parentFrame)
     self.parentFrame = parentFrame
     local C = PNT.Colors
 
-    -- Scroll container (outer bordered area)
+    -- Column header
+    self.headerFrame = CreateColumnHeader(parentFrame)
+
+    -- Scroll container (below header)
     self.scrollContainer = CreateFrame("Frame", nil, parentFrame, "BackdropTemplate")
-    self.scrollContainer:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", PADDING, -PADDING)
+    self.scrollContainer:SetPoint("TOPLEFT", self.headerFrame, "BOTTOMLEFT", 0, -1)
     self.scrollContainer:SetPoint("BOTTOMRIGHT", parentFrame, "BOTTOMRIGHT", -PADDING, PADDING)
     self.scrollContainer:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -257,7 +312,7 @@ function LootDialog:UpdateScrollThumb()
 end
 
 --------------------------------------------------------------------------------
--- Create a loot row
+-- Create a table row
 --------------------------------------------------------------------------------
 
 local function CreateRow(parent, index)
@@ -266,17 +321,25 @@ local function CreateRow(parent, index)
     local row = CreateFrame("Frame", "PNTLootRow" .. index, parent, "BackdropTemplate")
     row:SetHeight(ROW_HEIGHT)
     row:SetBackdrop({
-        bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-        edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
         edgeSize = 1,
     })
-    row:SetBackdropColor(unpack(C.BG_SECONDARY))
-    row:SetBackdropBorderColor(unpack(C.BORDER_PRIMARY))
+    row:SetBackdropColor(0.12, 0.12, 0.12, 1)
+    row:SetBackdropBorderColor(unpack(C_BORDER))
 
-    -- Item icon with quality-colored border
+    -- Player name column
+    row.playerText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    row.playerText:SetPoint("LEFT", row, "LEFT", COL_PLAYER_LEFT, 0)
+    row.playerText:SetWidth(COL_PLAYER_WIDTH)
+    row.playerText:SetJustifyH("LEFT")
+    row.playerText:SetWordWrap(false)
+    row.playerText:SetTextColor(unpack(C.TEXT_PRIMARY))
+
+    -- Item icon
     row.iconBorder = CreateFrame("Frame", nil, row, "BackdropTemplate")
     row.iconBorder:SetSize(ICON_SIZE + 2, ICON_SIZE + 2)
-    row.iconBorder:SetPoint("LEFT", row, "LEFT", PADDING, 0)
+    row.iconBorder:SetPoint("LEFT", row, "LEFT", COL_ICON_LEFT, 0)
     row.iconBorder:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -289,23 +352,24 @@ local function CreateRow(parent, index)
     row.icon:SetSize(ICON_SIZE, ICON_SIZE)
     row.icon:SetPoint("CENTER")
 
-    -- Item name (quality colored)
-    row.itemText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    row.itemText:SetPoint("TOPLEFT", row.iconBorder, "TOPRIGHT", 8, -4)
+    -- Item name column (quality colored)
+    row.itemText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    row.itemText:SetPoint("LEFT", row, "LEFT", COL_ITEM_LEFT, 0)
     row.itemText:SetJustifyH("LEFT")
     row.itemText:SetWordWrap(false)
 
-    -- Player name + slot
-    row.infoText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    row.infoText:SetPoint("BOTTOMLEFT", row.iconBorder, "BOTTOMRIGHT", 8, 4)
-    row.infoText:SetJustifyH("LEFT")
-    row.infoText:SetWordWrap(false)
-    row.infoText:SetTextColor(unpack(C.TEXT_SECONDARY))
+    -- Slot column
+    row.slotText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    row.slotText:SetPoint("RIGHT", row, "RIGHT", -(BUTTON_WIDTH + COL_BUTTON_INSET + 6 + COL_SLOT_WIDTH), 0)
+    row.slotText:SetWidth(COL_SLOT_WIDTH)
+    row.slotText:SetJustifyH("LEFT")
+    row.slotText:SetWordWrap(false)
+    row.slotText:SetTextColor(unpack(C.TEXT_SECONDARY))
 
     -- Styled "Need?" button
-    row.needButton = CreateStyledButton(row, "Need?", true)
+    row.needButton = CreateStyledButton(row, "Need?")
     row.needButton:SetSize(BUTTON_WIDTH, BUTTON_HEIGHT)
-    row.needButton:SetPoint("RIGHT", row, "RIGHT", -PADDING, 0)
+    row.needButton:SetPoint("RIGHT", row, "RIGHT", -COL_BUTTON_INSET, 0)
     row.needButton:SetFrameLevel(row:GetFrameLevel() + 5)
 
     -- Tooltip on row hover (clicks pass through to button)
@@ -342,7 +406,19 @@ local function SendNeedWhisper(entry)
 
     entry.asked = true
 
-    local ok, err = pcall(SendChatMessage, msg, "WHISPER", nil, entry.playerName)
+    -- In test mode, whisper yourself instead of the fake player
+    local target = entry.playerName
+    if PNT.Config._testMode then
+        local myName = UnitName("player")
+        local _, myRealm = UnitFullName("player")
+        if myRealm and myRealm ~= "" then
+            target = myName .. "-" .. myRealm
+        else
+            target = myName
+        end
+    end
+
+    local ok, err = pcall(SendChatMessage, msg, "WHISPER", nil, target)
     if ok then
         Utils.Print(PNT, "Whispered " .. (entry.playerShort or "unknown") .. " about [" .. entry.itemName .. "]")
     else
@@ -391,13 +467,16 @@ function LootDialog:Refresh()
         end
 
         -- Position
-        local yOffset = -((i - 1) * (ROW_HEIGHT + ROW_SPACING)) - 4
+        local yOffset = -((i - 1) * (ROW_HEIGHT + ROW_SPACING)) - 2
         row:ClearAllPoints()
-        row:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 4, yOffset)
-        row:SetPoint("RIGHT", self.scrollChild, "RIGHT", -4, 0)
+        row:SetPoint("TOPLEFT", self.scrollChild, "TOPLEFT", 2, yOffset)
+        row:SetPoint("RIGHT", self.scrollChild, "RIGHT", -2, 0)
 
         -- Store entry for tooltip
         row.entry = entry
+
+        -- Player name
+        row.playerText:SetText(entry.playerShort or "Unknown")
 
         -- Icon
         if entry.itemTexture then
@@ -421,51 +500,40 @@ function LootDialog:Refresh()
             row.itemText:SetText(entry.itemName or "Unknown Item")
         end
 
-        -- Clamp text width to not overlap button
-        local maxTextWidth = contentWidth - ICON_SIZE - BUTTON_WIDTH - PADDING * 3 - 20
-        if maxTextWidth > 0 then
-            row.itemText:SetWidth(maxTextWidth)
-            row.infoText:SetWidth(maxTextWidth)
+        -- Clamp item text width so it doesn't overlap slot column
+        local itemMaxWidth = contentWidth - COL_ITEM_LEFT - COL_SLOT_WIDTH - BUTTON_WIDTH - COL_BUTTON_INSET - 20
+        if itemMaxWidth > 0 then
+            row.itemText:SetWidth(itemMaxWidth)
         end
 
-        -- Player and slot info
-        row.infoText:SetText((entry.playerShort or "Unknown") .. "  \194\183  " .. (entry.slotName or ""))
+        -- Slot
+        row.slotText:SetText(entry.slotName or "")
 
         -- Button state
         if entry.asked then
-            row.needButton.bgColor = C.BG_TERTIARY
-            row.needButton.bgHover = C.BG_TERTIARY
-            row.needButton:SetBackdropColor(unpack(C.BG_TERTIARY))
-            row.needButton:SetBackdropBorderColor(unpack(C.BORDER_LIGHT))
+            row.needButton:SetBackdropColor(unpack(C_DISABLED))
+            row.needButton:SetBackdropBorderColor(unpack(C_BORDER))
             row.needButton.label:SetText("Asked")
-            row.needButton.label:SetTextColor(unpack(C.TEXT_MUTED))
-            row.needButton:SetScript("OnClick", nil)
-            row.needButton:SetScript("OnEnter", nil)
-            row.needButton:SetScript("OnLeave", nil)
+            row.needButton.label:SetTextColor(0.4, 0.4, 0.4, 1)
+            row.needButton.clickFunc = nil
+            row.needButton:Disable()
         else
-            row.needButton.bgColor = C.ACCENT
-            row.needButton.bgHover = C.ACCENT_DARK
-            row.needButton:SetBackdropColor(unpack(C.ACCENT))
-            row.needButton:SetBackdropBorderColor(unpack(C.BORDER_LIGHT))
+            row.needButton:SetBackdropColor(unpack(C_ELEMENT))
+            row.needButton:SetBackdropBorderColor(unpack(C_BORDER))
             row.needButton.label:SetText("Need?")
-            row.needButton.label:SetTextColor(0, 0, 0, 1)
-            row.needButton:SetScript("OnClick", function()
+            row.needButton.label:SetTextColor(0.9, 0.9, 0.9, 1)
+            row.needButton.clickFunc = function()
                 SendNeedWhisper(entry)
                 LootDialog:Refresh()
-            end)
-            row.needButton:SetScript("OnEnter", function(btn)
-                btn:SetBackdropColor(unpack(btn.bgHover))
-            end)
-            row.needButton:SetScript("OnLeave", function(btn)
-                btn:SetBackdropColor(unpack(btn.bgColor))
-            end)
+            end
+            row.needButton:Enable()
         end
 
         row:Show()
     end
 
     -- Update scroll child height
-    local totalHeight = math.max(1, count * (ROW_HEIGHT + ROW_SPACING) + 8)
+    local totalHeight = math.max(1, count * (ROW_HEIGHT + ROW_SPACING) + 4)
     self.scrollChild:SetHeight(totalHeight)
 
     -- Update main frame height

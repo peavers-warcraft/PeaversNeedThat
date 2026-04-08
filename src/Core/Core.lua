@@ -16,10 +16,11 @@ Core.contentFrame = nil
 Core.titleText = nil
 
 local TITLE_HEIGHT = 32
+local HEADER_HEIGHT = 24
 local PADDING = 12
-local MIN_HEIGHT = 120
+local MIN_HEIGHT = 180
 local MAX_HEIGHT = 500
-local ROW_TOTAL = 54 -- 48px row + 6px spacing
+local ROW_TOTAL = 32 -- 30px row + 2px spacing
 
 --------------------------------------------------------------------------------
 -- Create the main frame
@@ -33,7 +34,7 @@ function Core:CreateMainFrame()
 
     -- Main frame
     local frame = CreateFrame("Frame", "PeaversNeedThatFrame", UIParent, "BackdropTemplate")
-    frame:SetSize(config.frameWidth or 350, MIN_HEIGHT)
+    frame:SetSize(config.frameWidth or 580, MIN_HEIGHT)
     frame:SetPoint(
         config.framePoint or "CENTER",
         config.frameX or 0,
@@ -141,7 +142,7 @@ end
 function Core:UpdateFrameHeight(itemCount)
     if not self.mainFrame then return end
 
-    local contentHeight = (itemCount or 0) * ROW_TOTAL + PADDING * 2 + 8
+    local contentHeight = (itemCount or 0) * ROW_TOTAL + HEADER_HEIGHT + PADDING * 2 + 8
     local totalHeight = TITLE_HEIGHT + contentHeight
     totalHeight = math.max(totalHeight, MIN_HEIGHT)
     totalHeight = math.min(totalHeight, MAX_HEIGHT)
@@ -155,7 +156,7 @@ end
 
 function Core:UpdateFrameSize()
     if not self.mainFrame then return end
-    self.mainFrame:SetWidth(PNT.Config.frameWidth or 350)
+    self.mainFrame:SetWidth(PNT.Config.frameWidth or 580)
 end
 
 --------------------------------------------------------------------------------
