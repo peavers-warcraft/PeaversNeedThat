@@ -1,6 +1,12 @@
+--------------------------------------------------------------------------------
+-- PeaversNeedThat Configuration
+-- Uses PeaversCommons.ConfigManager with AceDB-3.0 for profile management
+--------------------------------------------------------------------------------
+
 local addonName, PNT = ...
 
 local PeaversCommons = _G.PeaversCommons
+local ConfigManager = PeaversCommons.ConfigManager
 
 -- Color palette matching PeaversCVars theme
 PNT.Colors = {
@@ -17,7 +23,7 @@ PNT.Colors = {
     BORDER_LIGHT = {0.4, 0.4, 0.45, 1},
 }
 
-local defaults = {
+local PNT_DEFAULTS = {
     enabled = true,
     frameWidth = 580,
     framePoint = "CENTER",
@@ -32,11 +38,18 @@ local defaults = {
     DEBUG_ENABLED = false,
 }
 
-PNT.Config = PeaversCommons.ConfigManager:New(
-    "PeaversNeedThat",
-    defaults,
+-- Create the AceDB-backed config
+PNT.Config = ConfigManager:NewWithAceDB(
+    PNT,
+    PNT_DEFAULTS,
     {
         savedVariablesName = "PeaversNeedThatDB",
+        profileType = "shared",
+        onProfileChanged = function()
+            if PNT.Core and PNT.Core.UpdateFrameSize then
+                PNT.Core:UpdateFrameSize()
+            end
+        end,
     }
 )
 

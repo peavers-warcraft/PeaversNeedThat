@@ -138,6 +138,18 @@ PeaversCommons.Events:Init(addonName, function()
         )
     end)
 
+    -- Register with PeaversConfig registry
+    if PeaversCommons.ConfigRegistry then
+        PeaversCommons.ConfigRegistry:Register({
+            name = "PeaversNeedThat",
+            displayName = "Need That",
+            description = "Loot tracking and whisper dialogs for M+",
+            addonRef = PNT,
+            config = PNT.Config,
+            pages = PNT.ConfigUI:GetPages(),
+            order = 6,
+        })
+    end
 end, {
     suppressAnnouncement = true
 })
