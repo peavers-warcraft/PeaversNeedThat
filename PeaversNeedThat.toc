@@ -13,6 +13,8 @@
 ## Dependencies: PeaversCommons
 ## SavedVariables: PeaversNeedThatDB
 
+Changelog.lua
+
 src\Main.lua
 
 src\Utils\Config.lua
