@@ -10,7 +10,7 @@
 
 ## X-Website: https://peavers.io
 
-## Dependencies: PeaversCommons
+## Dependencies: PeaversCommons, PeaversConfig
 ## SavedVariables: PeaversNeedThatDB
 
 Changelog.lua

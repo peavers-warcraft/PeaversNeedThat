@@ -14,8 +14,9 @@ A World of Warcraft addon that monitors loot drops in M+ dungeons and provides q
 ## Installation
 
 1. Download from [CurseForge](https://www.curseforge.com/wow/addons/peaversneedthat)
-2. Ensure PeaversCommons is also installed
-3. Enable the addon on the character selection screen
+2. Ensure [PeaversCommons](https://www.curseforge.com/wow/addons/peaverscommons) is also installed
+3. Ensure [PeaversConfig](https://www.curseforge.com/wow/addons/peaversconfig) is also installed
+4. Enable the addon on the character selection screen
 
 ## Usage
 
@@ -29,4 +30,5 @@ Access settings through the game's addon options to customize loot tracking and 
 
 ## Dependencies
 
-- PeaversCommons (required)
+- [PeaversCommons](https://www.curseforge.com/wow/addons/peaverscommons) (required)
+- [PeaversConfig](https://www.curseforge.com/wow/addons/peaversconfig) (required)
