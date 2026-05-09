@@ -120,24 +120,22 @@ PeaversCommons.Events:Init(addonName, function()
         PNT.LootTracker:Initialize()
     end
 
-    -- Create settings pages
     C_Timer.After(0.5, function()
-        PeaversCommons.SettingsUI:CreateSettingsPages(
-            PNT,
-            "PeaversNeedThat",
-            "Peavers Need That",
-            "Monitors loot drops in M+ dungeons and provides quick whisper dialogs to ask for items.",
-            {
-                "/pnt - Toggle loot window",
-                "/pnt clear - Clear current loot list",
-                "/pnt config - Open settings",
-                "/pnt test - Load sample data for testing",
-                "/pnt debug - Toggle debug mode",
-                "/pnt help - Show available commands"
-            }
-        )
+        PeaversCommons.SettingsUI:CreateRedirectPage(PNT, "PeaversNeedThat", "Peavers Need That")
     end)
 
+    -- Register with PeaversConfig registry
+    if PeaversCommons.ConfigRegistry then
+        PeaversCommons.ConfigRegistry:Register({
+            name = "PeaversNeedThat",
+            displayName = "Need That",
+            description = "Loot tracking and whisper dialogs for M+",
+            addonRef = PNT,
+            config = PNT.Config,
+            pages = PNT.ConfigUI:GetPages(),
+            order = 6,
+        })
+    end
 end, {
     suppressAnnouncement = true
 })
