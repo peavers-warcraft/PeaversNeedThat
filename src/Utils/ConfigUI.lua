@@ -100,7 +100,7 @@ function ConfigUI:BuildGeneralPage(parentFrame)
     y = newY - 8
 
     local widthSlider = W:CreateSlider(parentFrame, "Frame Width", {
-        min = 450, max = 750, step = 10,
+        min = 450, max = 750, step = 1,
         value = PNT.Config.frameWidth or 580,
         width = width,
         onChange = function(value)
