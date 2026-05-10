@@ -25,6 +25,7 @@ PeaversCommons.SlashCommands:Register(addonName, "pnt", {
         PNT:ToggleDisplay()
     end,
     clear = function()
+        PNT.Config._testMode = false
         if PNT.LootTracker then
             PNT.LootTracker:Clear()
         end

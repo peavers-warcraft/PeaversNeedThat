@@ -286,6 +286,7 @@ function LootTracker:Initialize()
         wipe(self.lootHistory)
         self.currentRunID = C_ChallengeMode.GetActiveChallengeMapID()
         self.runCompleted = false
+        PNT.Config._testMode = false
         if PNT.LootDialog then
             PNT.LootDialog:Refresh()
         end
