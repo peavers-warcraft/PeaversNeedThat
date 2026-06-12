@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: PeaversNeedThat
+  description: "A World of Warcraft addon that monitors loot drops in M+ dungeons and provides quick whisper dialogs to ask for items."
+  annotations:
+    github.com/project-slug: peavers-warcraft/PeaversNeedThat
+spec:
+  type: library
+  lifecycle: production
+  owner: peavers-warcraft
