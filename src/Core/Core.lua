@@ -4,9 +4,6 @@ local addonName, PNT = ...
 -- Core - Main UI frame with custom title bar and loot dialog
 --------------------------------------------------------------------------------
 
-local PeaversCommons = _G.PeaversCommons
-local Utils = PeaversCommons.Utils
-
 local Core = {}
 PNT.Core = Core
 

@@ -75,7 +75,7 @@ function ConfigUI:BuildGeneralPage(parentFrame)
     toggle4:SetPoint("TOPLEFT", indent, y)
     y = y - 40
 
-    local _, newY = W:CreateSectionHeader(parentFrame, "Loot Filtering", indent, y)
+    _, newY = W:CreateSectionHeader(parentFrame, "Loot Filtering", indent, y)
     y = newY - 8
 
     local qualityOptions = {
@@ -96,7 +96,7 @@ function ConfigUI:BuildGeneralPage(parentFrame)
     qualityDropdown:SetPoint("TOPLEFT", indent, y)
     y = y - 58
 
-    local _, newY = W:CreateSectionHeader(parentFrame, "Appearance", indent, y)
+    _, newY = W:CreateSectionHeader(parentFrame, "Appearance", indent, y)
     y = newY - 8
 
     local widthSlider = W:CreateSlider(parentFrame, "Frame Width", {
@@ -117,7 +117,7 @@ function ConfigUI:BuildGeneralPage(parentFrame)
     parentFrame:SetHeight(math.abs(y) + 30)
 end
 
-function ConfigUI:BuildWhisperPage(parentFrame)
+function ConfigUI.BuildWhisperPage(_, parentFrame)
     local y = -10
     local opts = GetPageOpts(parentFrame)
     local indent = opts.indent

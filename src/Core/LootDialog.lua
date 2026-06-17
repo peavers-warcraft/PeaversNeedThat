@@ -85,7 +85,6 @@ end
 --------------------------------------------------------------------------------
 
 local function CreateColumnHeader(parentFrame)
-    local C = PNT.Colors
 
     local header = CreateFrame("Frame", nil, parentFrame, "BackdropTemplate")
     header:SetHeight(HEADER_HEIGHT)
