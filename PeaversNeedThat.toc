@@ -9,6 +9,8 @@
 ## Category-enUS: Peavers
 
 ## X-Website: https://peavers.io
+## X-Source-Code: https://github.com/peavers-warcraft/PeaversNeedThat
+## X-Curse-Project-ID: 1606292
 
 ## Dependencies: PeaversCommons, PeaversConfig
 ## SavedVariables: PeaversNeedThatDB
