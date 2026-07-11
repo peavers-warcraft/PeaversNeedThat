@@ -3,8 +3,8 @@
 # Icon to display on website
 iconType: LootIcon
 
-# CurseForge project ID for download statistics (update after creating CurseForge project)
-curseForgeProjectId: 0
+# CurseForge project ID for download statistics
+curseForgeProjectId: 1606292
 
 # Tags for filtering and categorization
 tags:
