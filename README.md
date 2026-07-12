@@ -1,6 +1,6 @@
 # PeaversNeedThat
 
-[![AddonSentry](https://api.addonsentry.io/api/public/repos/peavers-warcraft/PeaversNeedThat/badge.svg)](https://addonsentry.io/dashboard/peavers-warcraft/PeaversNeedThat)
+[![AddonSentry](https://addonsentry.io/api/public/repos/peavers-warcraft/PeaversNeedThat/badge.svg)](https://addonsentry.io/dashboard/peavers-warcraft/PeaversNeedThat)
 
 A World of Warcraft addon that monitors loot drops in M+ dungeons and provides quick whisper dialogs to ask for items.
 
