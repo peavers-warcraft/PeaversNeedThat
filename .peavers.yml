@@ -1,7 +1,7 @@
 # .peavers.yml - Addon metadata for peavers.io website
 
 # Icon to display on website
-iconType: LootIcon
+iconType: GearRuneIcon
 
 # CurseForge project ID for download statistics
 curseForgeProjectId: 1606292
