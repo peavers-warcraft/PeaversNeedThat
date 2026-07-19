@@ -31,7 +31,7 @@ function ConfigUI:BuildGeneralPage(parentFrame)
     local _, newY = W:CreateSectionHeader(parentFrame, "General Settings", indent, y)
     y = newY - 8
 
-    local toggle1 = W:CreateToggle(parentFrame, "Enable addon", {
+    local toggle1 = W:CreateCheckbox(parentFrame, "Enable addon", {
         checked = PNT.Config.enabled,
         width = width,
         onChange = function(checked)
@@ -42,7 +42,7 @@ function ConfigUI:BuildGeneralPage(parentFrame)
     toggle1:SetPoint("TOPLEFT", indent, y)
     y = y - 30
 
-    local toggle2 = W:CreateToggle(parentFrame, "Auto-show window when loot drops", {
+    local toggle2 = W:CreateCheckbox(parentFrame, "Auto-show window when loot drops", {
         checked = PNT.Config.autoShow,
         width = width,
         onChange = function(checked)
@@ -53,7 +53,7 @@ function ConfigUI:BuildGeneralPage(parentFrame)
     toggle2:SetPoint("TOPLEFT", indent, y)
     y = y - 30
 
-    local toggle3 = W:CreateToggle(parentFrame, "Only track loot in Mythic+ dungeons", {
+    local toggle3 = W:CreateCheckbox(parentFrame, "Only track loot in Mythic+ dungeons", {
         checked = PNT.Config.onlyInMythicPlus,
         width = width,
         onChange = function(checked)
@@ -64,7 +64,7 @@ function ConfigUI:BuildGeneralPage(parentFrame)
     toggle3:SetPoint("TOPLEFT", indent, y)
     y = y - 30
 
-    local toggle4 = W:CreateToggle(parentFrame, "Lock frame position", {
+    local toggle4 = W:CreateCheckbox(parentFrame, "Lock frame position", {
         checked = PNT.Config.lockPosition,
         width = width,
         onChange = function(checked)
@@ -240,7 +240,7 @@ function ConfigUI:BuildDebugPage(parentFrame)
     local _, newY = W:CreateSectionHeader(parentFrame, "Debug", indent, y)
     y = newY - 8
 
-    local toggle = W:CreateToggle(parentFrame, "Enable debug messages", {
+    local toggle = W:CreateCheckbox(parentFrame, "Enable debug messages", {
         checked = PNT.Config.DEBUG_ENABLED,
         width = width,
         onChange = function(checked)
