@@ -254,8 +254,29 @@ function ConfigUI:BuildDebugPage(parentFrame)
     parentFrame:SetHeight(math.abs(y) + 30)
 end
 
+function ConfigUI:BuildInfoPage(parentFrame)
+    PeaversCommons.ConfigUIUtils.BuildInfoPage(parentFrame, "Need That", {
+        "Watches loot drops in Mythic+ dungeons and detects items that would be " ..
+            "an upgrade for your character. When one drops for someone else, a " ..
+            "small window lets you send a polite whisper asking for it.",
+        { command = "/pnt", desc = "toggle the loot window" },
+        { command = "/pnt clear", desc = "clear the current loot list" },
+        { command = "/pnt config", desc = "open the configuration panel" },
+
+        { header = "How it decides what is an upgrade" },
+        "Dropped items are compared against what you have equipped in the same " ..
+            "slot. Only items your class and spec can actually use are considered, " ..
+            "so the window stays quiet unless something is genuinely relevant.",
+
+        { header = "Whispering" },
+        "Nothing is ever sent automatically. The window only pre-writes a " ..
+            "courteous message - you choose whether to send it, and to whom.",
+    })
+end
+
 function ConfigUI:GetPages()
     return {
+        { key = "info", label = "Information", builder = function(f) ConfigUI:BuildInfoPage(f) end },
         { key = "general", label = "General", builder = function(f) ConfigUI:BuildGeneralPage(f) end },
         { key = "whisper", label = "Whisper", builder = function(f) ConfigUI:BuildWhisperPage(f) end },
         { key = "debug", label = "Debug", builder = function(f) ConfigUI:BuildDebugPage(f) end },
