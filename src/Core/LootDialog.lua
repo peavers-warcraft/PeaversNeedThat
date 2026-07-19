@@ -317,7 +317,7 @@ end
 local function CreateRow(parent, index)
     local C = PNT.Colors
 
-    local row = CreateFrame("Frame", "PNTLootRow" .. index, parent, "BackdropTemplate")
+    local row = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     row:SetHeight(ROW_HEIGHT)
     row:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8x8",
