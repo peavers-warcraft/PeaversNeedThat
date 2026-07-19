@@ -3,7 +3,7 @@
 ## Title: |cff3abdf7Peavers|rNeedThat
 ## Notes: Monitors loot drops in M+ dungeons and provides quick whisper dialogs to ask for items
 ## Author: Peavers
-## Version: 1.0.3
+## Version: 1.0.4
 
 ## IconTexture: Interface\AddOns\PeaversCommons\src\Media\Icon.tga
 ## Category-enUS: Peavers
